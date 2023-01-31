@@ -14,6 +14,7 @@ public class Quiz : MonoBehaviour
     [Header("Answers")]
     [SerializeField] GameObject[] answerButtons;
     int correctAnswerIndex;
+    bool hasAnswered;
 
     [Header("Button Sprites")]
     [SerializeField] Sprite defaultAnswerSprite;
@@ -32,15 +33,24 @@ public class Quiz : MonoBehaviour
     [SerializeField] TextMeshProUGUI scoreText;
     Score score;
 
-    void Start()
-    {   
+    [Header("ProgressBar")]
+    [SerializeField] Slider progressBar;
+    public bool isComplete;
+
+    void Awake() {
         score = FindObjectOfType<Score>();
         audioSource = GetComponent<AudioSource>();
         timer = GetComponent<Timer>();
     }
 
+    void Start() {      
+        progressBar.maxValue = questions.Count;
+        progressBar.value = 0;
+    }
+
     void Update() {
-        timerImage.fillAmount = timer.fillFraction;
+        DisplayImage();
+        DisplayTimeOut();
         if (timer.loadNextQuestion) {
             GetNextQuestion();
             timer.loadNextQuestion = false;
@@ -53,10 +63,11 @@ public class Quiz : MonoBehaviour
             SetDefaultButtonSprites();
             SetButtonsState(true);
             DisplayQuestion();
-            //score.IncrementQuestionsSeen();
+            score.IncrementQuestionsSeen();
+            progressBar.value++;
         }
         else {
-
+            isComplete = true;
         }
     }
 
@@ -70,9 +81,30 @@ public class Quiz : MonoBehaviour
         scoreText.text = "Score: " + score.CalculateScore() + "%";
     }
 
+    void DisplayImage() {
+        timerImage.fillAmount = timer.fillFraction;
+        
+        if (timer.isAnsweringQuestion) {
+            timerImage.enabled = true;
+        } else {
+            SetButtonsState(false);
+            timerImage.enabled = false;
+        }
+
+    }
+
+    void DisplayTimeOut() {
+        if (timer.timeOut && !hasAnswered) {
+            questionText.text = "Time's out!";
+            audioSource.PlayOneShot(clipWrong);
+            timer.timeOut = false;
+        }
+    }
+
     void DisplayQuestion() {
         TextMeshProUGUI buttonText;
         questionText.text = question.GetQuestion();
+        hasAnswered = false;
         for (int i=0; i<answerButtons.Length; i++) {
             buttonText = answerButtons[i].GetComponentInChildren<TextMeshProUGUI>();
             buttonText.text = question.GetAnswer(i);
@@ -88,6 +120,7 @@ public class Quiz : MonoBehaviour
     }
 
     public void OnAnswerSelected(int index) {
+        hasAnswered = true;
         correctAnswerIndex = question.GetCorrectAnswerIndex();
     
         if (index == correctAnswerIndex) {
@@ -96,8 +129,7 @@ public class Quiz : MonoBehaviour
             questionText.text = "Correct!";
             
             audioSource.PlayOneShot(clipCorrect);
-            //score.IncrementCorrectAnswers();
-
+            score.IncrementCorrectAnswers();
         }
         else {
             questionText.text = "Incorrect...";
@@ -106,7 +138,7 @@ public class Quiz : MonoBehaviour
         
         SetButtonsState(false);
         timer.CancelTimer();
-        //DisplayScore();
+        DisplayScore();
     }
 
     void SetDefaultButtonSprites() {

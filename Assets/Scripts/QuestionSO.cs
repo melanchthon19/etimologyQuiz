@@ -6,7 +6,8 @@ using UnityEngine;
 public class QuestionSO : ScriptableObject {
     [TextArea(2,6)]
     [SerializeField] string question = "Enter new question here";
-    enum Languages{empty, guaraní, catalán, gallego, inglés, árabe, italiano, francés, neerlandés, sueco, mapudungun, quechua, aimara};
+    enum Languages{empty, guaraní, catalán, gallego, inglés, árabe, italiano, francés, neerlandés, sueco, mapudungun, quechua, aimara, euskera,
+                    spanish, french, latin, greek, german, italian, dutch, scandinavian, japanese, arabic, norwegian};
     [SerializeField] Languages[] answers = new Languages[4];
     [SerializeField] int correctAnswerIndex;
 

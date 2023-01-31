@@ -5,6 +5,7 @@ using UnityEngine;
 public class Timer : MonoBehaviour
 {
     [SerializeField] public bool isAnsweringQuestion;
+    [SerializeField] public bool timeOut;
     [SerializeField] float timePerQuestion;
     [SerializeField] float timeShowAnswer;
     float timerValue;
@@ -24,6 +25,7 @@ public class Timer : MonoBehaviour
                 fillFraction = timerValue / timePerQuestion;
             }
             else {
+                timeOut = true;
                 isAnsweringQuestion = false;
                 timerValue = timeShowAnswer;
             }
@@ -33,6 +35,7 @@ public class Timer : MonoBehaviour
                 fillFraction = timerValue / timeShowAnswer;
             }
             else {
+                timeOut = false;
                 isAnsweringQuestion = true;
                 timerValue = timePerQuestion;
                 loadNextQuestion = true;
